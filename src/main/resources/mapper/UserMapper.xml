@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.takooya.mybatis.mapper.UserMapper">
+    <resultMap type="com.takooya.mybatis.dao.User" id="ResultMap">
+        <result column="ID" property="id"/>
+        <result column="NAME" property="name"/>
+        <result column="AGE" property="age"/>
+    </resultMap>
+
+    <select id="select" resultMap="ResultMap">
+        select * from users
+        <where>
+            <if test="id != null">ID > #{id}</if>
+        </where>
+    </select>
+
+    <select id="selectAll" resultMap="ResultMap">
+        select *
+        from users
+    </select>
+
+    <insert id="insertOne" parameterType="com.takooya.mybatis.dao.User">
+        insert into users(name, age)
+        values (#{name}, #{age})
+    </insert>
+</mapper>
