@@ -1,17 +1,10 @@
 package com.takooya.config;
 
-import com.takooya.quartz.QuartzJobLauncher;
+import com.takooya.quartz.jobs.JobFirst;
 import lombok.extern.slf4j.Slf4j;
-import org.quartz.CronTrigger;
-import org.quartz.JobDataMap;
-import org.quartz.JobDetail;
-import org.quartz.impl.JobDetailImpl;
-import org.quartz.impl.triggers.CronTriggerImpl;
 import org.quartz.spi.JobFactory;
 import org.quartz.spi.TriggerFiredBundle;
-import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Autowire;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
@@ -28,40 +21,6 @@ import java.text.ParseException;
 @Configuration
 @Slf4j
 public class QuartzConfig {
-    @Autowired
-    private JobLauncher jobLauncher;
-
-    @Bean("job1")
-    public JobDetail job1() {
-        log.info("[-QuartzConfig-].job1:jobLauncher={}", jobLauncher);
-        JobDetailImpl jobDetailImpl = new JobDetailImpl();
-        jobDetailImpl.setJobClass(QuartzJobLauncher.class);
-        jobDetailImpl.setName("job1");
-        jobDetailImpl.setDurability(true);
-        JobDataMap timeout = new JobDataMap();
-        timeout.put("timeout", 10);
-        jobDetailImpl.setJobDataMap(timeout);
-        return jobDetailImpl;
-    }
-
-    @Bean
-    public CronTrigger cronTrigger1() throws ParseException {
-        CronTriggerImpl cronTrigger = new CronTriggerImpl();
-        cronTrigger.setJobName("job1");
-        cronTrigger.setCronExpression("0/5 * * * * ?");
-        cronTrigger.setName("cronTrigger1");
-        return cronTrigger;
-    }
-
-//    @Bean
-//    public SchedulerFactoryBean schedulerFactoryBean(@Autowired CronTrigger cronTrigger, @Autowired JobDetail jobDetail) {
-//        SchedulerFactoryBean schedulerFactoryBean = new SchedulerFactoryBean();
-//        schedulerFactoryBean.setTriggers(cronTrigger);
-//        schedulerFactoryBean.setJobDetails(jobDetail);
-//        return schedulerFactoryBean;
-//    }
-
-
     /**
      * 继承org.springframework.scheduling.quartz.SpringBeanJobFactory
      * 实现任务实例化方式
@@ -137,8 +96,9 @@ public class QuartzConfig {
         schedulerFactoryBean.setApplicationContextSchedulerContextKey("applicationContext");
         //设置配置文件位置
         schedulerFactoryBean.setConfigLocation(new ClassPathResource("/quartz.properties"));
-        schedulerFactoryBean.setTriggers(cronTrigger1());
-        schedulerFactoryBean.setJobDetails(job1());
+        JobFirst jobFirst = new JobFirst();
+        schedulerFactoryBean.setTriggers(jobFirst.cronTrigger1());
+        schedulerFactoryBean.setJobDetails(jobFirst.job1());
         return schedulerFactoryBean;
     }
 

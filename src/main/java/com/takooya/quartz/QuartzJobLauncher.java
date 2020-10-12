@@ -22,20 +22,17 @@ import org.springframework.stereotype.Component;
 import java.util.Date;
 
 @Slf4j
-@Getter
-@Setter
 @Component
 public class QuartzJobLauncher extends QuartzJobBean {
     private String jobName;
     @Autowired
     private JobLauncher jobLauncher;
     @Autowired
-    private JobRegistry jobRegistry;
-    @Autowired
     private JobLocator jobLocator;
 
     @Override
     protected void executeInternal(JobExecutionContext context) {
+        log.info("[-QuartzJobLauncher-].executeInternal:currentTime={}", System.currentTimeMillis());
         Job job1 = null;
         try {
             job1 = jobLocator.getJob("myTaskletJob");
