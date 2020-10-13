@@ -19,6 +19,7 @@ import org.springframework.core.task.SimpleAsyncTaskExecutor;
 @Import(DataSourceAutoConfiguration.class)
 @Slf4j
 public class BatchConfig {
+
     @Autowired
     private JobRepository jobRepository;
 
