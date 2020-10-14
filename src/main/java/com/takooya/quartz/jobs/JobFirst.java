@@ -15,7 +15,7 @@ import java.text.ParseException;
 @Component
 public class JobFirst {
     private String jobName = "job1";
-    private String cronExpression = "0/5 * * * * ?";
+    private String cronExpression = "0 0/5 * * * ?";
     private String triggerName = "cronTrigger1";
 
     public JobDetail job1() {
