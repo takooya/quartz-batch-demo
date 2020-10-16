@@ -5,13 +5,17 @@ Content-Type: application/json
 GET http://localhost:8082/startJobs
 Content-Type: application/json
 
-###
+###  "jobGroupName": "helloworld",
 POST http://localhost:8082/addJob
 Content-Type: application/json
 
 {
-  "jobName": "testJob",
-  "time": "0/10 * * * * ?"
+  "jobName": "third",
+  "jobGroupName": "helloworld",
+  "triggerName": "third",
+  "triggerGroupName": "helloworld",
+  "clsName": "DynamicJob3",
+  "time": "0/15 * * * * ?"
 }
 
 ###
@@ -19,16 +23,32 @@ POST http://localhost:8082/modifyJobTime
 Content-Type: application/json
 
 {
-  "jobName": "testJob",
+  "triggerName": "third",
+  "triggerGroupName": "helloworld",
   "time": "0 0/1 * * * ?"
 }
 
 ###
-GET http://localhost:8082/removeJob?jobName=testJob
+POST http://localhost:8082/modifyJobTime
 Content-Type: application/json
 
+{
+  "triggerName": "second",
+  "triggerGroupName": "helloworld",
+  "time": "1/10 * * * * ?"
+}
+
 ###
-GET http://localhost:8082/getInfo
+POST http://localhost:8082/removeJob
+Content-Type: application/json
+
+{
+  "jobName": "job1",
+  "jobGroupName": "DEFAULT"
+}
+
+###
+GET http://localhost:8082/getInfo?clsName=DynamicJob2
 Content-Type: application/json
 
 ###

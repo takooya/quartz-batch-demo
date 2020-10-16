@@ -1,6 +1,7 @@
 package com.takooya.quartz;
 
 import cn.hutool.core.map.MapUtil;
+import com.takooya.quartz.dao.QuartzManagerBean;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
@@ -45,37 +46,6 @@ public class QuartzManager {
     }
 
     /**
-     * 添加一个定时任务，使用默认的任务组名，触发器名，触发器组名  （带参数）
-     *
-     * @param jobName 任务名
-     * @param cls     任务
-     * @param time    时间设置，参考quartz说明文档
-     */
-    public void addJob(String jobName, Class<? extends Job> cls, String time, Map<String, Object> parameter) {
-        addJob(jobName, JOB_GROUP_NAME,
-                jobName, TRIGGER_GROUP_NAME, cls,
-                time, parameter);
-    }
-
-    /**
-     * 添加一个定时任务
-     *
-     * @param jobName          任务名
-     * @param jobGroupName     任务组名
-     * @param triggerName      触发器名
-     * @param triggerGroupName 触发器组名
-     * @param cls              任务
-     * @param time             时间设置，参考quartz说明文档
-     */
-    public void addJob(String jobName, String jobGroupName,
-                       String triggerName, String triggerGroupName, Class<? extends Job> cls,
-                       String time) {
-        addJob(jobName, jobGroupName,
-                triggerName, triggerGroupName, cls,
-                time, null);
-    }
-
-    /**
      * 添加一个定时任务  （带参数）
      *
      * @param jobName          任务名
@@ -115,6 +85,17 @@ public class QuartzManager {
     }
 
     /**
+     * 添加一个定时任务
+     *
+     * @param qmb 定时任务参数
+     */
+    public void addJob(QuartzManagerBean qmb) {
+        addJob(qmb.getJobName(), qmb.getJobGroupName(),
+                qmb.getTriggerName(), qmb.getTriggerGroupName(),
+                qmb.getCls(), qmb.getTime(), qmb.getParameter());
+    }
+
+    /**
      * 修改一个任务的触发时间(使用默认的任务组名，触发器名，触发器组名)
      *
      * @param jobName 任务名
@@ -136,7 +117,7 @@ public class QuartzManager {
                 JobDetail jobDetail = sched.getJobDetail(jobKey);
                 Class<? extends Job> objJobClass = jobDetail.getJobClass();
                 removeJob(jobName);
-                addJob(jobName, objJobClass, time);
+                addJob(new QuartzManagerBean(jobName, objJobClass, time));
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

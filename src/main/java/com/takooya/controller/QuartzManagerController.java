@@ -1,12 +1,15 @@
 package com.takooya.controller;
 
-import com.takooya.quartz.DynamicJob;
+import cn.hutool.core.util.StrUtil;
 import com.takooya.quartz.QuartzManager;
+import com.takooya.quartz.dao.QuartzManagerBean;
 import lombok.extern.slf4j.Slf4j;
+import org.quartz.Job;
 import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.Map;
 
 @Slf4j
@@ -17,27 +20,49 @@ public class QuartzManagerController {
     private QuartzManager quartzManager;
 
     @GetMapping("/getInfo")
-    public Map<String, String> getInfo() throws SchedulerException {
+    public Map<String, String> getInfo(@RequestParam String clsName) throws SchedulerException, ClassNotFoundException {
+        if (StrUtil.isNotBlank(clsName)) {
+            if (!clsName.contains("com.takooya.quartz")) {
+                clsName = "com.takooya.quartz." + clsName;
+            }
+        }
+        Class<? extends Job> aClass = (Class<? extends Job>) Class.forName(clsName, false, Job.class.getClassLoader());
+        log.info("[-QuartzManagerController-].getInfo:={}", aClass);
         return quartzManager.getInfo();
     }
 
     @PostMapping("/addJob")
-    public void addJob(@RequestBody Map<String, String> param) {
-        String jobName = param.get("jobName");
-        String time = param.get("time");
-        quartzManager.addJob(jobName, DynamicJob.class, time);
+    public void addJob(@RequestBody @Valid QuartzManagerBean param) {
+        quartzManager.addJob(param);
     }
 
     @PostMapping("/modifyJobTime")
-    public void modifyJobTime(@RequestBody Map<String, String> param) {
-        String jobName = param.get("jobName");
+    public Map<String, String> modifyJobTime(@RequestBody Map<String, String> param) {
         String time = param.get("time");
-        quartzManager.modifyJobTime(jobName, time);
+        if (StrUtil.isBlank(time)) {
+            throw new RuntimeException("cronExpression不可以为空");
+        }
+        String jobName = param.get("jobName");
+        String triggerName = param.get("triggerName");
+        String triggerGroupName = param.get("triggerGroupName");
+        if (StrUtil.isAllBlank(jobName, triggerName)) {
+            throw new RuntimeException("jobName triggerName不可以同时为空");
+        }
+        if (StrUtil.isNotBlank(jobName)) {
+            quartzManager.modifyJobTime(jobName, time);
+        } else {
+            quartzManager.modifyJobTime(triggerName, triggerGroupName, time);
+        }
+        return param;
     }
 
-    @GetMapping("removeJob")
-    public void removeJob(@RequestParam String jobName) {
-        quartzManager.removeJob(jobName);
+    @PostMapping("removeJob")
+    public void removeJob(@RequestBody QuartzManagerBean qmb) {
+        if (StrUtil.isBlank(qmb.getTriggerName())) {
+            quartzManager.removeJob(qmb.getJobName(), qmb.getJobGroupName(), qmb.getJobName(), qmb.getJobGroupName());
+        } else {
+            quartzManager.removeJob(qmb.getJobName(), qmb.getJobGroupName(), qmb.getTriggerName(), qmb.getTriggerGroupName());
+        }
     }
 
     @GetMapping("startJobs")
