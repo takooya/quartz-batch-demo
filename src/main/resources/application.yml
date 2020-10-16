@@ -1,0 +1,6 @@
+spring:
+  profiles:
+    include: quartz-local
+    active: local
+server:
+  port: 8082

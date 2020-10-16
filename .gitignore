@@ -24,5 +24,6 @@ nbdist/
 .nb-gradle/
 
 ### YOUR-FILE-WITH-SENSITIVE-DATA ###
-application-local.properties
+*-local.properties
+*-local.yml
 bak/

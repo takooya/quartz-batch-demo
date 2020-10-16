@@ -7,6 +7,7 @@ import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.impl.JobDetailImpl;
 import org.quartz.impl.triggers.CronTriggerImpl;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import java.text.ParseException;
@@ -15,9 +16,10 @@ import java.text.ParseException;
 @Component
 public class JobFirst {
     private String jobName = "job1";
-    private String cronExpression = "0 0/5 * * * ?";
+    private String cronExpression = "0/15 * * * * ?";
     private String triggerName = "cronTrigger1";
 
+    @Bean
     public JobDetail job1() {
         JobDetailImpl jobDetailImpl = new JobDetailImpl();
         jobDetailImpl.setJobClass(QuartzJobLauncher.class);
@@ -29,6 +31,7 @@ public class JobFirst {
         return jobDetailImpl;
     }
 
+    @Bean
     public CronTrigger cronTrigger1() throws ParseException {
         CronTriggerImpl cronTrigger = new CronTriggerImpl();
         cronTrigger.setJobName(jobName);

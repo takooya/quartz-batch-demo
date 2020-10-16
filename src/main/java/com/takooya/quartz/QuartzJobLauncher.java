@@ -2,6 +2,7 @@ package com.takooya.quartz;
 
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
@@ -14,6 +15,7 @@ import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteExcep
 import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.QuartzJobBean;
+import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -26,10 +28,13 @@ public class QuartzJobLauncher extends QuartzJobBean {
     private JobLauncher jobLauncher;
     @Autowired
     private JobLocator jobLocator;
+    @Autowired
+    private SchedulerFactoryBean schedulerFactoryBean;
 
     @Override
-    protected void executeInternal(JobExecutionContext context) {
+    protected void executeInternal(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         log.info("[-QuartzJobLauncher-].executeInternal:currentTime={}", System.currentTimeMillis());
+        log.info("[-QuartzJobLauncher-].executeInternal:schedulerFactoryBean={}", schedulerFactoryBean);
         Job job1;
         try {
             job1 = jobLocator.getJob(jobName);

@@ -1,0 +1,61 @@
+# Default Properties file for use by StdSchedulerFactory
+# to create a Quartz Scheduler Instance, if a different
+# properties file is not explicitly specified.
+spring:
+  quartz:
+    job-store-type: jdbc
+    properties:
+      org:
+        quartz:
+          scheduler:
+            #默认或是自己改名字都行
+            instanceName: schedulerFactoryBean
+#            instanceName: DefaultQuartzScheduler
+            #如果使用集群，instanceId必须唯一，设置成AUTO
+            ### ID设置为自动获取 每一个必须不同 （所有调度器实例中是唯一的）
+            instanceId: AUTO
+            rmi:
+              export: false
+              proxy: false
+            ##指定调度程序的主线程是否应该是守护线程
+            #org.quartz.scheduler.makeSchedulerThreadDaemon=true
+            wrapJobExecutionInUserTransaction: false
+          ### ThreadPool实现的类名
+          threadPool:
+            class: org.quartz.simpl.SimpleThreadPool
+            ### 线程数量
+            threadCount: 10
+            ### ThreadPool配置线程守护进程
+            #org.quartz.threadPool.makeThreadsDaemons=true
+            ### 线程优先级
+            threadPriority: 5
+            threadsInheritContextClassLoaderOfInitializingThread: true
+          #============================================================================
+          # Configure JobStore
+          #============================================================================
+          jobStore:
+            ### 数据保存方式为持久化
+            #org.quartz.jobStore.class: org.quartz.simpl.RAMJobStore
+            #存储方式使用JobStoreTX，也就是数据库
+            class: org.quartz.impl.jdbcjobstore.JobStoreTX
+            ### StdJDBCDelegate说明支持集群
+            driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+            #数据库中quartz表的表名前缀
+            tablePrefix: QRTZ_
+            ### 容许的最大作业延长时间
+            misfireThreshold: 60000
+            #使用自己的配置文件
+            useProperties: false
+            #org.quartz.jobStore.dataSource:qzDS
+            #是否使用集群（如果项目只部署到 一台服务器，就不用了）
+            #org.quartz.jobStore.isClustered = true
+            #org.quartz.jobStore.clusterCheckinInterval = 10000
+          #============================================================================
+          # Configure Datasources
+          #============================================================================
+          #配置数据源
+          #org.quartz.dataSource.qzDS.driver:com.mysql.cj.jdbc.Driver
+          #org.quartz.dataSource.qzDS.URL:jdbc:mysql://localhost:3306/takooya?useUnicode=true&characterEncoding=utf-8&useSSL=false
+          #org.quartz.dataSource.qzDS.user:root
+          #org.quartz.dataSource.qzDS.password:root
+          #org.quartz.dataSource.qzDS.validationQuery=select 0 from dual

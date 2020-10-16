@@ -1,0 +1,32 @@
+spring:
+  datasource:
+    # druid configuration
+    url: jdbc:mysql://localhost:3306/takooya?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    username: root
+    password: root
+    # 可不配置，连接池自动选择
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    druid:
+      # connector pool
+      initial-size: 10
+      min-idle: 10
+      max-active: 50
+      max-wait: 60000
+      time-between-eviction-runs-millis: 300000
+      min-evictable-idle-time-millis: 300000
+      test-on-borrow: false
+      test-on-return: false
+      test-while-idle: true
+      # connector pool other setting
+      query-timeout: 10
+      pool-prepared-statements: true
+      max-open-prepared-statements: 20
+      asyncInit: true
+      filters: stat,wall
+  batch:
+    job:
+      #spring.batch.chunk.size: 5
+      enabled: false
+mybatis:
+  mapper-locations: classpath:mapper/*Mapper.xml
+  type-aliases-package: com.takooya.mybatis.dao
