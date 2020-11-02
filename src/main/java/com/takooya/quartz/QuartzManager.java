@@ -64,7 +64,7 @@ public class QuartzManager {
             JobDetail jobDetail = JobBuilder.newJob(cls).withIdentity(jobName, jobGroupName).build();
             //传参数
             if (MapUtil.isNotEmpty(parameter)) {
-                jobDetail.getJobDataMap().put("parameterList", parameter);
+                parameter.forEach((s, o) -> jobDetail.getJobDataMap().put(s, o));
             }
             // 触发器
             CronTrigger trigger = TriggerBuilder
@@ -221,7 +221,7 @@ public class QuartzManager {
      * @return key-value形式的 job名称-cron表达式
      * @throws SchedulerException 获取jobGroupNames发生的异常
      */
-    public Map<String, String> getInfo() throws SchedulerException {
+    public Map<String, QuartzManagerBean> getInfo() throws SchedulerException {
         List<String> jobGroupNames = sched.getJobGroupNames();
         AtomicInteger i = new AtomicInteger();
         Set<JobKey> allJobKeys = jobGroupNames.stream().collect(HashSet::new,
@@ -234,27 +234,34 @@ public class QuartzManager {
                     }
                 },
                 (BiConsumer<Set<JobKey>, Set<JobKey>>) Set::addAll);
-        return allJobKeys.stream().collect(HashMap::new, (BiConsumer<Map<String, String>, JobKey>) (result, jobKey) -> {
+        return allJobKeys.stream().collect(HashMap::new, (result, jobKey) -> {
             if (jobKey.getName().contains("ErrorKey")) {
-                result.put(jobKey.getName(), "null");
-            } else {
-                try {
-                    JobDetail jobDetail = sched.getJobDetail(jobKey);
-                    List<? extends Trigger> triggersOfJob = sched.getTriggersOfJob(jobKey);
-                    Map<String, String> temp = triggersOfJob.stream().collect(HashMap::new,
-                            (BiConsumer<Map<String, String>, Trigger>) (target, trigger) -> {
-                                if (trigger instanceof CronTrigger) {
-                                    String cronExpression = ((CronTrigger) trigger).getCronExpression();
-                                    target.put(jobKey.getGroup() + "." + jobKey.getName(), cronExpression);
-                                } else {
-                                    target.put(jobKey.getGroup() + "." + jobKey.getName(), trigger.getDescription());
-                                }
-                            }, Map::putAll);
-                    result.putAll(temp);
-                } catch (SchedulerException e) {
-                    e.printStackTrace();
-                    result.put(jobKey.getName(), "SchedulerException:" + e.getMessage());
-                }
+                return;
+            }
+            try {
+                JobDetail jobDetail = sched.getJobDetail(jobKey);
+                List<? extends Trigger> triggersOfJob = sched.getTriggersOfJob(jobKey);
+                QuartzManagerBean single = new QuartzManagerBean();
+                single.setClsName(jobDetail.getJobClass().getName());
+                single.setJobGroupName(jobDetail.getKey().getGroup());
+                single.setJobName(jobDetail.getKey().getName());
+                single.setParameter(jobDetail.getJobDataMap().getWrappedMap());
+                AtomicInteger triggerNum = new AtomicInteger();
+                Map<String, QuartzManagerBean> temp = triggersOfJob.stream().collect(HashMap::new,
+                        (qmbTarget, trigger) -> {
+                            QuartzManagerBean tempResult = new QuartzManagerBean(single);
+                            if (trigger instanceof CronTrigger) {
+                                String cronExpression = ((CronTrigger) trigger).getCronExpression();
+                                tempResult.setTriggerGroupName(trigger.getKey().getGroup());
+                                tempResult.setTriggerName(trigger.getKey().getName());
+                                tempResult.setTime(cronExpression);
+                            }
+                            qmbTarget.put(jobKey.getGroup() + "." + jobKey.getName() + triggerNum.incrementAndGet(), tempResult);
+                        }, Map::putAll);
+                result.putAll(temp);
+            } catch (SchedulerException e) {
+                e.printStackTrace();
+                result.put(jobKey.getGroup() + "." + jobKey.getName(), null);
             }
         }, Map::putAll);
     }

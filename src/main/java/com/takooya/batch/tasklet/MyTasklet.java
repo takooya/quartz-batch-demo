@@ -6,20 +6,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.StepContribution;
+import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.batch.core.job.SimpleJob;
-import org.springframework.batch.core.job.builder.JobBuilderException;
-import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.scope.context.ChunkContext;
-import org.springframework.batch.core.step.builder.StepBuilderException;
 import org.springframework.batch.core.step.tasklet.Tasklet;
-import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.List;
 
@@ -27,10 +21,7 @@ import java.util.List;
 @Component
 public class MyTasklet implements Tasklet {
     @Autowired
-    private JobRepository jobRepository;
-
-    @Autowired
-    private PlatformTransactionManager transactionManager;
+    private JobBuilderFactory jobBuilderFactory;
 
     @Autowired
     private StepBuilderFactory stepBuilderFactory;
@@ -41,43 +32,27 @@ public class MyTasklet implements Tasklet {
     @Autowired
     private UserMapper userMapper;
 
+    @Autowired
+    private Step step;
+
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) {
         List<User> users = userMapper.selectAll();
-        users.forEach(user1 -> log.info("[-MyTasklet-].execute:users={}", user1));
+        log.info("[-MyTasklet-].execute:users={}", users);
         return RepeatStatus.FINISHED;
     }
 
-    @Autowired
-    @Qualifier("myTaskletStep")
-    private Step step;
-
-    @Bean("myTaskletJob")
+    @Bean
     public Job myTaskletJob() {
-        SimpleJob simpleJob = new SimpleJob();
-        simpleJob.setJobRepository(jobRepository);
-        simpleJob.setName("myTaskletJob");
-        simpleJob.addStep(step);
-        try {
-            simpleJob.afterPropertiesSet();
-        } catch (Exception e) {
-            throw new JobBuilderException(e);
-        }
-        return simpleJob;
+        return jobBuilderFactory.get("myTaskletJob")
+                .start(step)
+                .build();
     }
 
-    @Bean("myTaskletStep")
+    @Bean
     public Step myTaskletStep() {
-        TaskletStep taskletStep = new TaskletStep();
-        taskletStep.setJobRepository(jobRepository);
-        taskletStep.setTasklet(myTasklet);
-        taskletStep.setTransactionManager(transactionManager);
-        taskletStep.setName("myTaskletStep");
-        try {
-            taskletStep.afterPropertiesSet();
-        } catch (Exception e) {
-            throw new StepBuilderException(e);
-        }
-        return taskletStep;
+        return stepBuilderFactory.get("myTaskletStep")
+                .tasklet(myTasklet)
+                .build();
     }
 }

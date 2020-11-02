@@ -4,7 +4,6 @@ import cn.hutool.core.util.StrUtil;
 import com.takooya.quartz.QuartzManager;
 import com.takooya.quartz.dao.QuartzManagerBean;
 import lombok.extern.slf4j.Slf4j;
-import org.quartz.Job;
 import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -20,14 +19,8 @@ public class QuartzManagerController {
     private QuartzManager quartzManager;
 
     @GetMapping("/getInfo")
-    public Map<String, String> getInfo(@RequestParam String clsName) throws SchedulerException, ClassNotFoundException {
-        if (StrUtil.isNotBlank(clsName)) {
-            if (!clsName.contains("com.takooya.quartz")) {
-                clsName = "com.takooya.quartz." + clsName;
-            }
-        }
-        Class<? extends Job> aClass = (Class<? extends Job>) Class.forName(clsName, false, Job.class.getClassLoader());
-        log.info("[-QuartzManagerController-].getInfo:={}", aClass);
+    public Map<String, QuartzManagerBean> getInfo()
+            throws SchedulerException {
         return quartzManager.getInfo();
     }
 

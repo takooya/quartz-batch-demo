@@ -1,5 +1,6 @@
 package com.takooya.quartz.dao;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ClassLoaderUtil;
 import cn.hutool.core.util.StrUtil;
@@ -19,9 +20,9 @@ import java.util.Map;
 public class QuartzManagerBean implements Serializable {
     @NotBlank
     private String jobName;
-    private String jobGroupName = "ATAO_JOBGROUP";
+    private String jobGroupName = "DEFAULT";
     private String triggerName;
-    private String triggerGroupName = "ATAO_TRIGGERGROUP";
+    private String triggerGroupName = "DEFAULT";
     private Class<? extends Job> cls = DynamicJob.class;
     private String clsName = DynamicJob.class.getName();
     private Map<String, Object> parameter;
@@ -50,6 +51,10 @@ public class QuartzManagerBean implements Serializable {
             this.clsName = cls.getName();
         }
         this.time = time;
+    }
+
+    public QuartzManagerBean(QuartzManagerBean source) {
+        BeanUtil.copyProperties(source, this);
     }
 
     public Class<? extends Job> getCls() {

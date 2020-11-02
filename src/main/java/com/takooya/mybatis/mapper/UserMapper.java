@@ -1,10 +1,10 @@
 package com.takooya.mybatis.mapper;
 
-import java.util.List;
-
 import com.takooya.mybatis.dao.User;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Mapper
 @Repository
