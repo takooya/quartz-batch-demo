@@ -13,7 +13,6 @@ import org.springframework.batch.core.launch.NoSuchJobException;
 import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.repository.JobRestartException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
 
@@ -21,23 +20,26 @@ import java.util.Date;
 
 @Slf4j
 @Component
-public class Job4 extends QuartzJobBean {
-    @Autowired
-    private JobLauncher jobLauncher;
-    @Autowired
-    private JobLocator jobLocator;
+public class BatchPrintUserJob extends QuartzJobBean {
+    private final JobLauncher jobLauncher;
+    private final JobLocator jobLocator;
+
+    public BatchPrintUserJob(JobLauncher jobLauncher, JobLocator jobLocator) {
+        this.jobLauncher = jobLauncher;
+        this.jobLocator = jobLocator;
+    }
 
     @Override
     protected void executeInternal(JobExecutionContext jobExecutionContext) {
-        Job job1;
-        JobDataMap mergedJobDataMap = jobExecutionContext.getMergedJobDataMap();
-        String jobName = mergedJobDataMap.getString("jobName");
+        Job batchDynamicJob;
+        JobDataMap quartzData = jobExecutionContext.getMergedJobDataMap();
+        String batchJobName = quartzData.getString("jobName");
         try {
-            job1 = jobLocator.getJob(jobName);
-            JobParameters jobParameters = new JobParametersBuilder()
+            batchDynamicJob = jobLocator.getJob(batchJobName);
+            JobParameters batchParameters = new JobParametersBuilder()
                     .addDate("date", new Date())
                     .toJobParameters();
-            jobLauncher.run(job1, jobParameters);
+            jobLauncher.run(batchDynamicJob, batchParameters);
         } catch (NullPointerException | NoSuchJobException e) {
             log.info("[-Job4-].executeInternal:{}无相关batch job", jobExecutionContext.getJobDetail());
         } catch (JobInstanceAlreadyCompleteException |

@@ -5,6 +5,9 @@ import lombok.Getter;
 public enum ResultEnum {
     //访问成功
     SUCCESS(200, "成功"),
+    /**
+     * 定时任务相关错误
+     */
     NO_QUARTZ_JOB_FOUND(6001, "定时任务Job没有找到"),
     SHORTAGE_MODIFY_TRIGGER_PARAM(6002, "缺少修改Trigger的参数，请检查Trigger的groupName和name"),
     NO_QUARTZ_TRIGGER_FOUND(6003, "定时任务Trigger没有找到"),
@@ -14,7 +17,12 @@ public enum ResultEnum {
     DELETE_JOB_FAIL(6007, "删除job失败"),
     SCHEDULER_IS_SHUTDOWN(6008, "调度器处于关闭状态"),
     SCHEDULER_IS_STANDBY(6009, "调度器处于待机状态"),
-    QUARTZ_NAME_DOT_ILLEGAL(6010, "定时任务名称含有多个特殊字符“.”");
+    QUARTZ_NAME_DOT_ILLEGAL(6010, "定时任务名称含有多个特殊字符“.”"),
+
+    /**
+     * 业务相关错误
+     */
+    USER_ADD_FAIL(8000, "用户添加失败");
     @Getter
     private int status;
     @Getter

@@ -19,7 +19,7 @@ import java.util.List;
 
 @Slf4j
 @Component
-public class MyTasklet implements Tasklet {
+public class PrintUserTasklet implements Tasklet {
     @Autowired
     private JobBuilderFactory jobBuilderFactory;
 
@@ -27,7 +27,7 @@ public class MyTasklet implements Tasklet {
     private StepBuilderFactory stepBuilderFactory;
 
     @Autowired
-    private MyTasklet myTasklet;
+    private PrintUserTasklet printUserTasklet;
 
     @Autowired
     private UserMapper userMapper;
@@ -38,21 +38,21 @@ public class MyTasklet implements Tasklet {
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) {
         List<User> users = userMapper.selectAll();
-        log.info("[-MyTasklet-].execute:users={}", users);
+        log.info("[-PrintUserTasklet-].execute:users={}", users);
         return RepeatStatus.FINISHED;
     }
 
     @Bean
-    public Job myTaskletJob() {
-        return jobBuilderFactory.get("myTaskletJob")
+    public Job printUserJob() {
+        return jobBuilderFactory.get("printUserJob")
                 .start(step)
                 .build();
     }
 
     @Bean
-    public Step myTaskletStep() {
-        return stepBuilderFactory.get("myTaskletStep")
-                .tasklet(myTasklet)
+    public Step printUserStep() {
+        return stepBuilderFactory.get("printUserStep")
+                .tasklet(printUserTasklet)
                 .build();
     }
 }

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class DynamicJob implements Job {
+public class PrintCronJob implements Job {
     @Override
     public void execute(JobExecutionContext context) {
         Trigger trigger = context.getTrigger();

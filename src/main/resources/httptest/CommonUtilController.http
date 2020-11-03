@@ -1,0 +1,8 @@
+GET http://localhost:8082/util/getBeanInfo
+Content-Type: application/json
+
+###
+GET http://localhost:8082/util/getSubClassNames
+Content-Type: application/json
+
+###

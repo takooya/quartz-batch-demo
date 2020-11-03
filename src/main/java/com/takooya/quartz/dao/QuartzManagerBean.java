@@ -4,7 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ClassLoaderUtil;
 import cn.hutool.core.util.StrUtil;
-import com.takooya.quartz.DynamicJob;
+import com.takooya.quartz.PrintCronJob;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -28,8 +28,8 @@ public class QuartzManagerBean implements Serializable {
     private String jobGroupName;
     private String triggerName;
     private String triggerGroupName;
-    private Class<? extends Job> cls = DynamicJob.class;
-    private String clsName = DynamicJob.class.getName();
+    private Class<? extends Job> cls = PrintCronJob.class;
+    private String clsName = PrintCronJob.class.getName();
     private Map<String, Object> parameter;
 
     @NotBlank
@@ -42,7 +42,7 @@ public class QuartzManagerBean implements Serializable {
 
     public QuartzManagerBean(@NotBlank String jobName, String clsName, @NotBlank String time) {
         this.jobName = jobName;
-        if (!DynamicJob.class.getName().equals(clsName)) {
+        if (!PrintCronJob.class.getName().equals(clsName)) {
             this.clsName = clsName;
             this.cls = (Class<? extends Job>) ClassLoaderUtil.loadClass(clsName, Job.class.getClassLoader(), false);
         }
@@ -51,7 +51,7 @@ public class QuartzManagerBean implements Serializable {
 
     public QuartzManagerBean(@NotBlank String jobName, Class<? extends Job> cls, @NotBlank String time) {
         this.jobName = jobName;
-        if (!DynamicJob.class.equals(cls)) {
+        if (!PrintCronJob.class.equals(cls)) {
             this.cls = cls;
             this.clsName = cls.getName();
         }
@@ -64,14 +64,14 @@ public class QuartzManagerBean implements Serializable {
 
     public Class<? extends Job> getCls() {
         if (cls == null && StrUtil.isBlank(clsName)) {
-            cls = DynamicJob.class;
+            cls = PrintCronJob.class;
             clsName = cls.getName();
             return cls;
         }
         if (cls == null && StrUtil.isNotBlank(clsName)) {
-            String[] split = DynamicJob.class.getName().split("\\.");
+            String[] split = PrintCronJob.class.getName().split("\\.");
             if (ArrayUtil.contains(split, clsName)) {
-                cls = DynamicJob.class;
+                cls = PrintCronJob.class;
                 clsName = cls.getName();
             } else {
                 cls = getClass(clsName);

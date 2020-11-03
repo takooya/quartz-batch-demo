@@ -1,16 +1,16 @@
-GET http://localhost:8082/getInfo
+GET http://localhost:8082/quartz/getInfo
 Content-Type: application/json
 
 ###
-GET http://localhost:8082/standbyJobs
+GET http://localhost:8082/quartz/standbyJobs
 Content-Type: application/json
 
 ###
-GET http://localhost:8082/startJobs
+GET http://localhost:8082/quartz/startJobs
 Content-Type: application/json
 
 ###
-POST http://localhost:8082/addJob
+POST http://localhost:8082/quartz/addJob
 Content-Type: application/json
 
 {
@@ -21,12 +21,12 @@ Content-Type: application/json
   "clsName": "com.takooya.quartz.DynamicJob",
   "time": "0/10 * * * * ?",
   "parameter": {
-    "jobName": "myTaskletJob"
+    "jobName": "printUserJob"
   }
 }
 
 ###
-POST http://localhost:8082/modifyJob
+POST http://localhost:8082/quartz/modifyJob
 Content-Type: application/json
 
 {
@@ -38,16 +38,20 @@ Content-Type: application/json
 }
 
 ###
-POST http://localhost:8082/removeJob
+POST http://localhost:8082/quartz/removeJob
 Content-Type: application/json
 
 {
-  "jobName": "job2",
-  "jobGroupName": "DEFAULT"
+  "jobName": "third",
+  "jobGroupName": "helloworld",
+  "triggerName": "third",
+  "triggerGroupName": "helloworld"
 }
 
 ###
 
 ### 关闭后无法启动
-GET http://localhost:8082/shutdownJobs
+GET http://localhost:8082/quartz/shutdownJobs
 Content-Type: application/json
+
+###
