@@ -1,44 +1,40 @@
-GET http://localhost:8082/shutdownJobs
+GET http://localhost:8082/getInfo
+Content-Type: application/json
+
+###
+GET http://localhost:8082/standbyJobs
 Content-Type: application/json
 
 ###
 GET http://localhost:8082/startJobs
 Content-Type: application/json
 
-###  "jobGroupName": "helloworld",
+###
 POST http://localhost:8082/addJob
 Content-Type: application/json
 
 {
-  "jobName": "job2",
-  "jobGroupName": "DEFAULT",
-  "triggerName": "job2",
-  "triggerGroupName": "DEFAULT",
-  "clsName": "Job4",
-  "time": "0/15 * * * * ?",
+  "jobName": "third",
+  "jobGroupName": "helloworld",
+  "triggerName": "third",
+  "triggerGroupName": "helloworld",
+  "clsName": "com.takooya.quartz.DynamicJob",
+  "time": "0/10 * * * * ?",
   "parameter": {
     "jobName": "myTaskletJob"
   }
 }
 
 ###
-POST http://localhost:8082/modifyJobTime
+POST http://localhost:8082/modifyJob
 Content-Type: application/json
 
 {
-  "triggerName": "job2",
-  "triggerGroupName": "DEFAULT",
-  "time": "0 15 0/1 * * ?"
-}
-
-###
-POST http://localhost:8082/modifyJobTime
-Content-Type: application/json
-
-{
+  "jobName": "first",
+  "jobGroupName": "helloworld",
   "triggerName": "first",
   "triggerGroupName": "helloworld",
-  "time": "0 5/10 * * * ?"
+  "time": "0/20 * * * * ?"
 }
 
 ###
@@ -51,7 +47,7 @@ Content-Type: application/json
 }
 
 ###
-GET http://localhost:8082/getInfo
-Content-Type: application/json
 
-###
+### 关闭后无法启动
+GET http://localhost:8082/shutdownJobs
+Content-Type: application/json

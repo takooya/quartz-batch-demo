@@ -14,15 +14,20 @@ import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.util.Map;
 
+/**
+ * quartz执行的基础信息Bean
+ *
+ * @author takooya
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class QuartzManagerBean implements Serializable {
     @NotBlank
     private String jobName;
-    private String jobGroupName = "DEFAULT";
+    private String jobGroupName;
     private String triggerName;
-    private String triggerGroupName = "DEFAULT";
+    private String triggerGroupName;
     private Class<? extends Job> cls = DynamicJob.class;
     private String clsName = DynamicJob.class.getName();
     private Map<String, Object> parameter;

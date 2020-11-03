@@ -1,70 +1,79 @@
 package com.takooya.controller;
 
 import cn.hutool.core.util.StrUtil;
-import com.takooya.quartz.QuartzManager;
+import com.takooya.common.RequestResult;
+import com.takooya.enums.ResultEnum;
+import com.takooya.exception.QuartzManageException;
 import com.takooya.quartz.dao.QuartzManagerBean;
+import com.takooya.quartz.service.QuartzService;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.SchedulerException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Map;
 
+/**
+ * @author takooya
+ */
+@SuppressWarnings("rawtypes")
 @Slf4j
 @RestController
+@RequestMapping("/quartz")
 public class QuartzManagerController {
 
-    @Autowired
-    private QuartzManager quartzManager;
+    private final QuartzService quartzService;
+
+    public QuartzManagerController(QuartzService quartzService) {
+        this.quartzService = quartzService;
+    }
 
     @GetMapping("/getInfo")
-    public Map<String, QuartzManagerBean> getInfo()
-            throws SchedulerException {
-        return quartzManager.getInfo();
+    public RequestResult getInfo() throws SchedulerException {
+        return RequestResult.success(quartzService.getInfo());
     }
 
     @PostMapping("/addJob")
-    public void addJob(@RequestBody @Valid QuartzManagerBean param) {
-        quartzManager.addJob(param);
+    public RequestResult addJob(@RequestBody @Valid QuartzManagerBean param) throws SchedulerException {
+        QuartzManagerBean quartzManagerBean = quartzService.addJob(param);
+        return RequestResult.success(quartzManagerBean);
     }
 
-    @PostMapping("/modifyJobTime")
-    public Map<String, String> modifyJobTime(@RequestBody Map<String, String> param) {
-        String time = param.get("time");
-        if (StrUtil.isBlank(time)) {
-            throw new RuntimeException("cronExpression不可以为空");
+    @PostMapping("/modifyJob")
+    public RequestResult modifyJob(@RequestBody QuartzManagerBean qmb) throws SchedulerException {
+        boolean haveTime = StrUtil.isNotBlank(qmb.getTime());
+        boolean triggerGroupEmtpy = StrUtil.isBlank(qmb.getTriggerGroupName());
+        boolean triggerEmpty = StrUtil.isBlank(qmb.getTriggerName());
+        if (haveTime && (triggerGroupEmtpy || triggerEmpty)) {
+            throw new QuartzManageException(ResultEnum.SHORTAGE_MODIFY_TRIGGER_PARAM);
         }
-        String jobName = param.get("jobName");
-        String triggerName = param.get("triggerName");
-        String triggerGroupName = param.get("triggerGroupName");
-        if (StrUtil.isAllBlank(jobName, triggerName)) {
-            throw new RuntimeException("jobName triggerName不可以同时为空");
-        }
-        if (StrUtil.isNotBlank(jobName)) {
-            quartzManager.modifyJobTime(jobName, time);
-        } else {
-            quartzManager.modifyJobTime(triggerName, triggerGroupName, time);
-        }
-        return param;
+        qmb = quartzService.modifyJob(qmb);
+        return RequestResult.success(qmb);
     }
 
     @PostMapping("removeJob")
-    public void removeJob(@RequestBody QuartzManagerBean qmb) {
-        if (StrUtil.isBlank(qmb.getTriggerName())) {
-            quartzManager.removeJob(qmb.getJobName(), qmb.getJobGroupName(), qmb.getJobName(), qmb.getJobGroupName());
-        } else {
-            quartzManager.removeJob(qmb.getJobName(), qmb.getJobGroupName(), qmb.getTriggerName(), qmb.getTriggerGroupName());
+    public RequestResult removeJob(@RequestBody QuartzManagerBean qmb) throws SchedulerException {
+        if (!StrUtil.isAllNotBlank(qmb.getJobName(), qmb.getJobGroupName(), qmb.getTriggerName(), qmb.getTriggerGroupName())) {
+            throw new QuartzManageException(ResultEnum.SHORTAGE_QUARTZ_REMOVE_PARAM);
         }
+        qmb = quartzService.removeJob(qmb);
+        return RequestResult.success(qmb);
+    }
+
+    @GetMapping("standbyJobs")
+    public RequestResult standbyJobs() throws SchedulerException {
+        quartzService.standbyJobs();
+        return RequestResult.success(null);
     }
 
     @GetMapping("startJobs")
-    public void startJobs() {
-        quartzManager.startJobs();
+    public RequestResult startJobs() throws SchedulerException {
+        quartzService.startJobs();
+        return RequestResult.success(null);
     }
 
     @GetMapping("shutdownJobs")
-    public void shutdownJobs() {
-        quartzManager.shutdownJobs();
+    public RequestResult shutdownJobs() throws SchedulerException {
+        quartzService.shutdownJobs();
+        return RequestResult.success(null);
     }
 }
