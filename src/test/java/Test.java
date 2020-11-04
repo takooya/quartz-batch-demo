@@ -1,7 +1,8 @@
 import com.takooya.DemoApplication;
-import com.takooya.mybatis.mapper.UserMapper;
 import com.takooya.mybatis.dao.User;
+import com.takooya.mybatis.mapper.UserMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,6 +20,9 @@ public class Test {
 
     @Autowired(required = false)
     public DataSourceTransactionManager transactionManager;
+
+    @Autowired
+    public SqlSessionFactory sqlSessionFactory;
 
     @org.junit.Test
     public void getUser() {

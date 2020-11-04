@@ -5,22 +5,31 @@
         <result column="ID" property="id"/>
         <result column="NAME" property="name"/>
         <result column="AGE" property="age"/>
+        <result column="TIMES" property="times"/>
     </resultMap>
 
     <select id="select" resultMap="ResultMap">
-        select * from users
+        select id, name, age, times from users
         <where>
             <if test="id != null">ID > #{id}</if>
         </where>
     </select>
 
     <select id="selectAll" resultMap="ResultMap">
-        select *
+        select id, name, age, times
         from users
     </select>
 
     <insert id="insertOne" parameterType="com.takooya.mybatis.dao.User">
-        insert into users(name, age)
-        values (#{name}, #{age})
+        insert into users(NAME, AGE, TIMES)
+        values (#{name}, #{age}, #{times})
     </insert>
+
+    <update id="updateOne" parameterType="com.takooya.mybatis.dao.User">
+        update users
+        set NAME  = #{name},
+            AGE   = #{age},
+            TIMES = #{times}
+        where ID = #{id};
+    </update>
 </mapper>

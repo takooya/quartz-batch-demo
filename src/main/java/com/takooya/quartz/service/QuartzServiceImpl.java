@@ -158,6 +158,16 @@ public class QuartzServiceImpl implements QuartzService {
         return qmb;
     }
 
+    @Override
+    public void pauseJob(QuartzManagerBean qmb) throws SchedulerException {
+        sched.pauseJob(JobKey.jobKey(qmb.getJobName(), qmb.getJobGroupName()));
+    }
+
+    @Override
+    public void resumeJob(QuartzManagerBean qmb) throws SchedulerException {
+        sched.resumeJob(JobKey.jobKey(qmb.getJobName(), qmb.getJobGroupName()));
+    }
+
     /**
      * {@inheritDoc}
      */

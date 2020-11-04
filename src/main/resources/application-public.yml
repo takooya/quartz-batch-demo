@@ -30,3 +30,5 @@ spring:
 mybatis:
   mapper-locations: classpath:mapper/*Mapper.xml
   type-aliases-package: com.takooya.mybatis.dao
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

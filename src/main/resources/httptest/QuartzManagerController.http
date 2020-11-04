@@ -1,15 +1,15 @@
 GET http://localhost:8082/quartz/getInfo
 Content-Type: application/json
 
-###
+### 停止全部触发
 GET http://localhost:8082/quartz/standbyJobs
 Content-Type: application/json
 
-###
+### 开启全部触发
 GET http://localhost:8082/quartz/startJobs
 Content-Type: application/json
 
-###
+### 添加job
 POST http://localhost:8082/quartz/addJob
 Content-Type: application/json
 
@@ -25,32 +25,61 @@ Content-Type: application/json
   }
 }
 
-###
+### 添加job
+POST http://localhost:8082/quartz/addJob
+Content-Type: application/json
+
+{
+  "jobName": "userUpdateTimesJob",
+  "clsName": "com.takooya.quartz.BatchPrintUserJob",
+  "time": "0 0/1 * * * ?",
+  "parameter": {
+    "jobName": "userUpdateTimesJob"
+  }
+}
+
+### 修改job
 POST http://localhost:8082/quartz/modifyJob
 Content-Type: application/json
 
 {
-  "jobName": "first",
-  "jobGroupName": "helloworld",
-  "triggerName": "first",
-  "triggerGroupName": "helloworld",
-  "time": "0/20 * * * * ?"
+  "jobName": "userUpdateTimesJob",
+  "jobGroupName": "DEFAULT",
+  "triggerName": "userUpdateTimesJob",
+  "triggerGroupName": "DEFAULT",
+  "time": "0 0/1 * * * ?"
 }
 
-###
+### 删除job
 POST http://localhost:8082/quartz/removeJob
 Content-Type: application/json
 
 {
-  "jobName": "third",
-  "jobGroupName": "helloworld",
-  "triggerName": "third",
-  "triggerGroupName": "helloworld"
+  "jobName": "job2",
+  "jobGroupName": "DEFAULT",
+  "triggerName": "job2",
+  "triggerGroupName": "DEFAULT"
 }
 
-###
+### 暂停job
+POST http://localhost:8082/quartz/pauseJob
+Content-Type: application/json
 
-### 关闭后无法启动
+{
+  "jobName": "first",
+  "jobGroupName": "helloworld"
+}
+
+### 重启job（从暂停的状态）
+POST http://localhost:8082/quartz/resumeJob
+Content-Type: application/json
+
+{
+  "jobName": "first",
+  "jobGroupName": "helloworld"
+}
+
+### 关闭调度器 后无法启动
 GET http://localhost:8082/quartz/shutdownJobs
 Content-Type: application/json
 

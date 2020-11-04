@@ -59,6 +59,18 @@ public class QuartzManagerController {
         return RequestResult.success(qmb);
     }
 
+    @PostMapping("pauseJob")
+    public RequestResult pauseJob(@RequestBody QuartzManagerBean qmb) throws SchedulerException {
+        quartzService.pauseJob(qmb);
+        return RequestResult.success(qmb);
+    }
+
+    @PostMapping("resumeJob")
+    public RequestResult resumeJob(@RequestBody QuartzManagerBean qmb) throws SchedulerException {
+        quartzService.resumeJob(qmb);
+        return RequestResult.success(qmb);
+    }
+
     @GetMapping("standbyJobs")
     public RequestResult standbyJobs() throws SchedulerException {
         quartzService.standbyJobs();

@@ -2,8 +2,8 @@ POST http://localhost:8082/user/add
 Content-Type: application/json
 
 {
-  "name": "lisa",
-  "age": "31"
+  "name": "elva",
+  "age": "34"
 }
 
 ###

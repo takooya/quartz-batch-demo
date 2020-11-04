@@ -55,6 +55,22 @@ public interface QuartzService {
     QuartzManagerBean removeJob(QuartzManagerBean qmb) throws SchedulerException;
 
     /**
+     * 暂停定时任务
+     *
+     * @param qmb {jobName,jobGroupName}
+     * @throws SchedulerException Base class for exceptions thrown by the Quartz <code>{@link Scheduler}</code>.
+     */
+    void pauseJob(QuartzManagerBean qmb) throws SchedulerException;
+
+    /**
+     * 重启动定时任务
+     *
+     * @param qmb {jobName,jobGroupName}
+     * @throws SchedulerException Base class for exceptions thrown by the Quartz <code>{@link Scheduler}</code>.
+     */
+    void resumeJob(QuartzManagerBean qmb) throws SchedulerException;
+
+    /**
      * 暂停所有定时任务
      *
      * @throws SchedulerException Base class for exceptions thrown by the Quartz <code>{@link Scheduler}</code>.
