@@ -1,10 +1,11 @@
 package com.takooya.quartz.service;
 
 import com.takooya.quartz.dao.QuartzManagerBean;
+import com.takooya.quartz.dao.QuartzOriginBean;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 
-import java.util.Map;
+import java.util.List;
 
 public interface QuartzService {
 
@@ -14,7 +15,9 @@ public interface QuartzService {
      * @return key-value形式的 job名称-cron表达式
      * @throws SchedulerException Base class for exceptions thrown by the Quartz <code>{@link Scheduler}</code>.
      */
-    Map<String, QuartzManagerBean> getInfo() throws SchedulerException;
+    List<QuartzManagerBean> getInfo() throws SchedulerException;
+
+    List<QuartzOriginBean> getCurrentlyExecutingJobs() throws SchedulerException;
 
     /**
      * 添加一个定时任务  （带参数）

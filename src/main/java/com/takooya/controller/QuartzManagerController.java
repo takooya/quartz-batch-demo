@@ -40,7 +40,7 @@ public class QuartzManagerController {
 
     @PostMapping("/modifyJob")
     public RequestResult modifyJob(@RequestBody QuartzManagerBean qmb) throws SchedulerException {
-        boolean haveTime = StrUtil.isNotBlank(qmb.getTime());
+        boolean haveTime = StrUtil.isNotBlank(qmb.getCronExpression());
         boolean triggerGroupEmtpy = StrUtil.isBlank(qmb.getTriggerGroupName());
         boolean triggerEmpty = StrUtil.isBlank(qmb.getTriggerName());
         if (haveTime && (triggerGroupEmtpy || triggerEmpty)) {

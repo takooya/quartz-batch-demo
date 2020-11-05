@@ -12,6 +12,11 @@ import org.springframework.stereotype.Component;
 public class PrintCronJob implements Job {
     @Override
     public void execute(JobExecutionContext context) {
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         Trigger trigger = context.getTrigger();
         if (trigger instanceof CronTrigger) {
             log.info("[-DynamicJob-]{}'s cron is {}",

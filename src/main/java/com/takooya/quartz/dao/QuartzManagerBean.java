@@ -9,9 +9,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.quartz.Job;
+import org.quartz.Trigger;
 
 import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -33,29 +35,34 @@ public class QuartzManagerBean implements Serializable {
     private Map<String, Object> parameter;
 
     @NotBlank
-    private String time;
+    private String cronExpression;
+    private String description;
+    private Date previousFireTime;
+    private Date nextFireTime;
+    private Trigger.TriggerState triggerState;
+    private Date startTime;
 
-    public QuartzManagerBean(@NotBlank String jobName, @NotBlank String time) {
+    public QuartzManagerBean(@NotBlank String jobName, @NotBlank String cronExpression) {
         this.jobName = jobName;
-        this.time = time;
+        this.cronExpression = cronExpression;
     }
 
-    public QuartzManagerBean(@NotBlank String jobName, String clsName, @NotBlank String time) {
+    public QuartzManagerBean(@NotBlank String jobName, String clsName, @NotBlank String cronExpression) {
         this.jobName = jobName;
         if (!PrintCronJob.class.getName().equals(clsName)) {
             this.clsName = clsName;
             this.cls = (Class<? extends Job>) ClassLoaderUtil.loadClass(clsName, Job.class.getClassLoader(), false);
         }
-        this.time = time;
+        this.cronExpression = cronExpression;
     }
 
-    public QuartzManagerBean(@NotBlank String jobName, Class<? extends Job> cls, @NotBlank String time) {
+    public QuartzManagerBean(@NotBlank String jobName, Class<? extends Job> cls, @NotBlank String cronExpression) {
         this.jobName = jobName;
         if (!PrintCronJob.class.equals(cls)) {
             this.cls = cls;
             this.clsName = cls.getName();
         }
-        this.time = time;
+        this.cronExpression = cronExpression;
     }
 
     public QuartzManagerBean(QuartzManagerBean source) {

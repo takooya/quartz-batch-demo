@@ -1,18 +1,20 @@
 package com.takooya.quartz.service;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.takooya.enums.ResultEnum;
 import com.takooya.exception.QuartzManageException;
 import com.takooya.quartz.dao.QuartzManagerBean;
+import com.takooya.quartz.dao.QuartzOriginBean;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
  * 定时任务管理类
@@ -46,49 +48,59 @@ public class QuartzServiceImpl implements QuartzService {
      * {@inheritDoc}
      */
     @Override
-    public Map<String, QuartzManagerBean> getInfo() throws SchedulerException {
-        List<String> jobGroupNames = sched.getJobGroupNames();
-        AtomicInteger i = new AtomicInteger();
-        Set<JobKey> allJobKeys = jobGroupNames.stream().collect(HashSet::new,
-                (jobKeys, groupName) -> {
-                    GroupMatcher<JobKey> jobKeyGroupMatcher = GroupMatcher.jobGroupEquals(groupName);
-                    try {
-                        jobKeys.addAll(sched.getJobKeys(jobKeyGroupMatcher));
-                    } catch (SchedulerException e) {
-                        jobKeys.add(new JobKey("ErrorKey" + i.getAndIncrement(), groupName));
-                    }
-                },
-                Set::addAll);
-        return allJobKeys.stream().collect(HashMap::new, (result, jobKey) -> {
+    public List<QuartzManagerBean> getInfo() throws SchedulerException {
+        GroupMatcher<JobKey> jobKeyGroupMatcher = GroupMatcher.anyJobGroup();
+        Set<JobKey> allJobKeys = sched.getJobKeys(jobKeyGroupMatcher);
+        return allJobKeys.stream().collect(ArrayList::new, (result, jobKey) -> {
+            QuartzManagerBean qmb = new QuartzManagerBean();
+            qmb.setJobGroupName(jobKey.getGroup());
+            qmb.setJobName(jobKey.getName());
             if (jobKey.getName().contains("ErrorKey")) {
-                result.put(jobKey.getGroup() + StrUtil.DOT + jobKey.getName(), null);
+                result.add(qmb);
+                return;
             }
             try {
                 JobDetail jobDetail = sched.getJobDetail(jobKey);
                 List<? extends Trigger> triggersOfJob = sched.getTriggersOfJob(jobKey);
-                QuartzManagerBean single = new QuartzManagerBean();
-                single.setClsName(jobDetail.getJobClass().getName());
-                single.setJobGroupName(jobDetail.getKey().getGroup());
-                single.setJobName(jobDetail.getKey().getName());
-                single.setParameter(jobDetail.getJobDataMap().getWrappedMap());
-                AtomicInteger triggerNum = new AtomicInteger();
-                Map<String, QuartzManagerBean> temp = triggersOfJob.stream().collect(HashMap::new,
+                qmb.setClsName(jobDetail.getJobClass().getName());
+                qmb.setJobGroupName(jobDetail.getKey().getGroup());
+                qmb.setJobName(jobDetail.getKey().getName());
+                qmb.setParameter(jobDetail.getJobDataMap().getWrappedMap());
+                qmb.setDescription(jobDetail.getDescription());
+                List<QuartzManagerBean> temp = triggersOfJob.stream().collect(ArrayList::new,
                         (qmbTarget, trigger) -> {
-                            QuartzManagerBean tempResult = new QuartzManagerBean(single);
+                            QuartzManagerBean tempResult = new QuartzManagerBean(qmb);
                             if (trigger instanceof CronTrigger) {
                                 String cronExpression = ((CronTrigger) trigger).getCronExpression();
                                 tempResult.setTriggerGroupName(trigger.getKey().getGroup());
                                 tempResult.setTriggerName(trigger.getKey().getName());
-                                tempResult.setTime(cronExpression);
+                                tempResult.setCronExpression(cronExpression);
+                                tempResult.setPreviousFireTime(trigger.getPreviousFireTime());
+                                tempResult.setNextFireTime(trigger.getNextFireTime());
+                                tempResult.setStartTime(trigger.getStartTime());
+                                try {
+                                    Trigger.TriggerState triggerState = sched.getTriggerState(trigger.getKey());
+                                    tempResult.setTriggerState(triggerState);
+                                } catch (SchedulerException e) {
+                                    e.printStackTrace();
+                                }
                             }
-                            qmbTarget.put(jobKey.getGroup() + "." + jobKey.getName() + triggerNum.incrementAndGet(), tempResult);
-                        }, Map::putAll);
-                result.putAll(temp);
+                            qmbTarget.add(tempResult);
+                        }, List::addAll);
+                result.addAll(temp);
             } catch (SchedulerException e) {
                 e.printStackTrace();
-                result.put(jobKey.getGroup() + "." + jobKey.getName(), null);
+                result.add(qmb);
             }
-        }, Map::putAll);
+        }, List::addAll);
+    }
+
+    @Override
+    public List<QuartzOriginBean> getCurrentlyExecutingJobs() throws SchedulerException {
+        List<JobExecutionContext> currentlyExecutingJobs = sched.getCurrentlyExecutingJobs();
+        return currentlyExecutingJobs.stream().map(jec ->
+                BeanUtil.copyProperties(jec,QuartzOriginBean.class)
+        ).collect(Collectors.toList());
     }
 
     /**
@@ -110,7 +122,7 @@ public class QuartzServiceImpl implements QuartzService {
         CronTrigger trigger = TriggerBuilder.newTrigger()
                 //给触发器起一个名字和组名
                 .withIdentity(qmb.getTriggerName(), qmb.getJobGroupName())
-                .withSchedule(CronScheduleBuilder.cronSchedule(qmb.getTime()))
+                .withSchedule(CronScheduleBuilder.cronSchedule(qmb.getCronExpression()))
                 .build();
         sched.scheduleJob(jobDetail, trigger);
         if (!sched.isShutdown()) {
@@ -127,7 +139,7 @@ public class QuartzServiceImpl implements QuartzService {
     public QuartzManagerBean modifyJob(QuartzManagerBean qmb) throws SchedulerException {
         this.fillShortageInfo(qmb);
         this.getJobDetail(qmb);
-        if (StrUtil.isNotBlank(qmb.getTime())) {
+        if (StrUtil.isNotBlank(qmb.getCronExpression())) {
             this.modifyJobTime(qmb);
         }
         if (qmb.getCls() != null) {
@@ -233,11 +245,11 @@ public class QuartzServiceImpl implements QuartzService {
     private void modifyJobTime(QuartzManagerBean qmb) throws SchedulerException {
         CronTrigger trigger = getTrigger(qmb);
         String oldTime = trigger.getCronExpression();
-        if (!oldTime.equalsIgnoreCase(qmb.getTime())) {
+        if (!oldTime.equalsIgnoreCase(qmb.getCronExpression())) {
             //重新构建trigger
             trigger = trigger.getTriggerBuilder()
                     .withIdentity(trigger.getKey())
-                    .withSchedule(CronScheduleBuilder.cronSchedule(qmb.getTime()))
+                    .withSchedule(CronScheduleBuilder.cronSchedule(qmb.getCronExpression()))
                     .build();
             //按新的trigger重新设置job执行
             try {
