@@ -5,10 +5,6 @@ Content-Type: application/json
 GET http://localhost:8082/quartz/getCurrentlyExecutingJobs
 Content-Type: application/json
 
-###
-GET http://localhost:8082/quartz/getCurrentlyExecutingJobsWrapper
-Content-Type: application/json
-
 ### 停止全部触发
 GET http://localhost:8082/quartz/standbyJobs
 Content-Type: application/json
@@ -26,7 +22,7 @@ Content-Type: application/json
   "jobGroupName": "helloworld",
   "triggerName": "third",
   "triggerGroupName": "helloworld",
-  "clsName": "com.takooya.quartz.PrintCronJob",
+  "clsName": "com.takooya.quartz.jobs.PrintCronJob",
   "cronExpression": "0/10 * * * * ?",
   "parameter": {
     "jobName": "printUserJob"
@@ -39,7 +35,7 @@ Content-Type: application/json
 
 {
   "jobName": "userUpdateTimesJob",
-  "clsName": "com.takooya.quartz.BatchPrintUserJob",
+  "clsName": "com.takooya.quartz.jobs.BatchPrintUserJob",
   "cronExpression": "0 0/1 * * * ?",
   "parameter": {
     "jobName": "userUpdateTimesJob"
