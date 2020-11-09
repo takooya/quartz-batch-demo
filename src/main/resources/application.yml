@@ -1,6 +1,6 @@
 spring:
   profiles:
-    include: quartz-local
+    include: quartz-local,batch-public
     active: local
 server:
   port: 8082

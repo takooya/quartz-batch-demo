@@ -14,20 +14,20 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Configuration;
 
 /**
  * @author takooya
  */
-@Component
+@Configuration
 @Slf4j
-public class UserUpdateTimesJob {
+public class UserUpdateTimesConfig {
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
     private final SqlSessionFactory sqlSessionFactory;
     private final SqlSessionTemplate sqlSessionTemplate;
 
-    public UserUpdateTimesJob(
+    public UserUpdateTimesConfig(
             JobBuilderFactory jobBuilderFactory,
             StepBuilderFactory stepBuilderFactory,
             @Qualifier("sqlSessionFactory") SqlSessionFactory sqlSessionFactory,
@@ -38,23 +38,25 @@ public class UserUpdateTimesJob {
         this.sqlSessionTemplate = sqlSessionTemplate;
     }
 
-    @Bean(name = "userUpdateTimes")
-    public Job job() {
+    @Bean
+    public Job userUpdateTimesJobs() {
         return jobBuilderFactory.get("userUpdateTimesJob")
-                .start(userUpdateTimesStep())
+                .start(userUpdateTimesSteps())
                 .build();
     }
 
-    public Step userUpdateTimesStep() {
+    @Bean
+    public Step userUpdateTimesSteps() {
         return stepBuilderFactory.get("userUpdateTimesStep")
                 .<User, User>chunk(100)
                 .faultTolerant().retryLimit(3).retry(Exception.class)
-                .reader(itemReader())
-                .writer(itemWriter())
+                .reader(userUpdateTimesReaders())
+                .writer(userUpdateTimesWriters())
                 .build();
     }
 
-    public ItemReader<? extends User> itemReader() {
+    @Bean
+    public ItemReader<? extends User> userUpdateTimesReaders() {
         MyBatisPagingItemReader<User> pagingItemReader = new MyBatisPagingItemReader<>();
         /*MyBatisCursorItemReader<User> cursorItemReader = new MyBatisCursorItemReader<>();*/
         try {
@@ -73,7 +75,8 @@ public class UserUpdateTimesJob {
         return pagingItemReader;
     }
 
-    public ItemWriter<? super User> itemWriter() {
+    @Bean
+    public ItemWriter<? super User> userUpdateTimesWriters() {
         MyBatisBatchItemWriter<User> itemWriter = new MyBatisBatchItemWriter<>();
         itemWriter.setStatementId("updateOne");
         itemWriter.setSqlSessionTemplate(sqlSessionTemplate);

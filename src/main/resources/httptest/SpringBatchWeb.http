@@ -1,0 +1,31 @@
+### 查看所有jobs（名称）
+GET http://localhost:8082/monitor/jobs
+Content-Type: application/json
+### getRunningExecutionIdsForJobName
+GET http://localhost:8082/monitor/jobs/runningexecutions
+Content-Type: application/json
+### /monitor/jobs/executions/<executionId:long>
+### 获取execution详情
+GET http://localhost:8082/monitor/jobs/executions/225
+Content-Type: application/json
+########################################################################
+########################################################################
+### 调用job并返回lastExecutionId
+POST http://localhost:8082/operate/jobs/userUpdateTimesJob
+Content-Type: application/json
+
+{}
+### /operate/jobs/executions/<executionId:long>
+### 获取execution状态
+GET http://localhost:8082/operate/jobs/executions/228
+Content-Type: application/json
+### /jobs/executions/{executionId}/log
+###
+GET http://localhost:8082/operate/jobs/executions/242/log
+Content-Type: application/json
+### /jobs/executions/{executionId}/log
+### 停止正在运行的job
+DELETE http://localhost:8082/operate/jobs/executions/1
+Content-Type: application/json
+###
+

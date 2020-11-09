@@ -1,0 +1,13 @@
+spring:
+  batch:
+    job:
+      #spring.batch.chunk.size: 5
+      enabled: false
+batch:
+  config:
+    package-javaconfig: com.takooya.batch
+  web:
+    operations:
+      base: /operate
+    monitoring:
+      base: /monitor

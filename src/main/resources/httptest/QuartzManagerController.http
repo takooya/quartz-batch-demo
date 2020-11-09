@@ -76,8 +76,8 @@ POST http://localhost:8082/quartz/resumeJob
 Content-Type: application/json
 
 {
-  "jobName": "first",
-  "jobGroupName": "helloworld"
+  "jobName": "userUpdateTimesJob",
+  "jobGroupName": "DEFAULT"
 }
 
 ### 关闭调度器 后无法启动

@@ -45,6 +45,13 @@
         <!--
         spring-batch-admin web端监控
         -->
+        <!-- https://mvnrepository.com/artifact/de.codecentric/batch-web-spring-boot-starter -->
+        <dependency>
+            <groupId>de.codecentric</groupId>
+            <artifactId>batch-web-spring-boot-starter</artifactId>
+            <version>2.0.2.RELEASE</version>
+        </dependency>
+
         <!--        <dependency>-->
         <!--            <groupId>org.springframework.batch</groupId>-->
         <!--            <artifactId>spring-batch-admin-resources</artifactId>-->

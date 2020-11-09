@@ -3,14 +3,19 @@
 # properties file is not explicitly specified.
 spring:
   quartz:
+    # javaconfig配置：org\springframework\scheduling\quartz\SchedulerFactoryBean.class
     job-store-type: jdbc
+    # 设置自行启动
+    auto-startup: true
+    wait-for-jobs-to-complete-on-shutdown: true
+    # 可选,QuartzScheduler启动时更新己存在的Job,这样就不用每次修改targetObject后删除qrtz_job_details表对应记录
+    overwrite-existing-jobs: true
     properties:
       org:
         quartz:
           scheduler:
             #默认或是自己改名字都行
-            instanceName: schedulerFactoryBean
-#            instanceName: DefaultQuartzScheduler
+            instanceName: DefaultQuartzScheduler
             #如果使用集群，instanceId必须唯一，设置成AUTO
             ### ID设置为自动获取 每一个必须不同 （所有调度器实例中是唯一的）
             instanceId: AUTO
@@ -46,7 +51,7 @@ spring:
             misfireThreshold: 60000
             #使用自己的配置文件
             useProperties: false
-            #org.quartz.jobStore.dataSource:qzDS
+            dataSource: quartzDB
             #是否使用集群（如果项目只部署到 一台服务器，就不用了）
             #org.quartz.jobStore.isClustered = true
             #org.quartz.jobStore.clusterCheckinInterval = 10000
