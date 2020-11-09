@@ -34,12 +34,9 @@ POST http://localhost:8082/quartz/addJob
 Content-Type: application/json
 
 {
-  "jobName": "userUpdateTimesJob",
-  "clsName": "com.takooya.quartz.jobs.BatchPrintUserJob",
-  "cronExpression": "0 0/1 * * * ?",
-  "parameter": {
-    "jobName": "userUpdateTimesJob"
-  }
+  "jobName": "printCronTest",
+  "clsName": "com.takooya.quartz.jobs.PrintCronJob",
+  "cronExpression": "0/5 * * * * ?"
 }
 
 ### 修改job
